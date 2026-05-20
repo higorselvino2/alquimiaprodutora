@@ -1,0 +1,6 @@
+{
+  "name": "SyncCRM - Music Production",
+  "description": "A modern, responsive CRM for music producers with WhatsApp/n8n and Supabase integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
