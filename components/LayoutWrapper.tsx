@@ -1,19 +1,30 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Settings, Menu, X, Music } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, Menu, X, Music, Bell } from 'lucide-react';
+import { useLeadStore } from '@/store/useLeadStore';
+import { NewLeadBanner } from './NewLeadBanner';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Alertas', href: '/alertas', icon: Bell },
   { name: 'Leads', href: '/leads', icon: Users },
   { name: 'Configurações', href: '/settings', icon: Settings },
 ];
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { leads } = useLeadStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const newLeadsCount = leads.filter(l => l.status === 'Novo Lead').length;
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-main text-slate-100">
@@ -49,6 +60,12 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
+            const badge = mounted && item.name === 'Leads' && newLeadsCount > 0 ? (
+              <span className="ml-auto bg-cyan-500 text-black text-[10px] px-2 py-0.5 rounded-full font-bold neon-glow">
+                 {newLeadsCount}
+              </span>
+            ) : null;
+
             return (
               <Link
                 key={item.name}
@@ -60,8 +77,9 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                {item.name}
+                <item.icon className="w-5 h-5 shrink-0" />
+                <span>{item.name}</span>
+                {badge}
               </Link>
             );
           })}
@@ -97,6 +115,8 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
           
           <div className="w-6" /> {/* Spacer for centering */}
         </header>
+
+        <NewLeadBanner />
 
         <main className="flex-1 overflow-y-auto focus:outline-none bg-bg-main">
           {children}
